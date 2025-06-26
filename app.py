@@ -136,9 +136,14 @@ from flask import send_from_directory
 def robots():
     return send_from_directory('.', 'robots.txt')
 
+
+
+from flask import send_file
+
 @app.route('/sitemap.xml')
 def sitemap():
-    return send_from_directory(directory='.', path='sitemap.xml')
+    return send_file('sitemap.xml', mimetype='application/xml')
+
 
 
 @app.route('/notices')
