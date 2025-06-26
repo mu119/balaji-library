@@ -126,6 +126,11 @@ def index():
                            empty_seats=empty_seats,
                            members=members)  # ✅ Added safely
 
+@app.route('/googlefa4f73218d0d48a7.html')
+def google_verify():
+    return render_template('googlefa4f73218d0d48a7.html')
+
+
 @app.route('/notices')
 def notice_board():
     conn = sqlite3.connect(DB_PATH)
