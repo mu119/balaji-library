@@ -128,7 +128,7 @@ def index():
 
 @app.route('/googlefa4f73218d0d48a7.html')
 def google_verify():
-    return render_template('googlefa4f73218d0d48a7.html')
+    return app.send_static_file('googlefa4f73218d0d48a7.html')
 
 
 @app.route('/notices')
