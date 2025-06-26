@@ -130,6 +130,16 @@ def index():
 def google_verify():
     return app.send_static_file('googlefa4f73218d0d48a7.html')
 
+from flask import send_from_directory
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('.', 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory(directory='.', path='sitemap.xml')
+
 
 @app.route('/notices')
 def notice_board():
