@@ -339,27 +339,38 @@ def student_login():
     return render_template('student_login.html', title="Student Login")
 
 
+from werkzeug.security import generate_password_hash
+import sqlite3
+
 def get_admin(username):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    
-    # Ensure table exists
-    cur.execute("CREATE TABLE IF NOT EXISTS admin (username TEXT, password TEXT)")
 
-    # Try to get the admin with given username
+    # Ensure admin table exists
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS admin (
+            username TEXT PRIMARY KEY,
+            password TEXT NOT NULL
+        )
+    """)
+
+    # Check if admin with given username exists
     cur.execute("SELECT * FROM admin WHERE username = ?", (username,))
     admin = cur.fetchone()
 
-    # If no admin exists at all, insert default admin
-    if not admin:
-        cur.execute("SELECT COUNT(*) FROM admin")
-        total_admins = cur.fetchone()[0]
-        if total_admins == 0:
-            cur.execute("INSERT INTO admin (username, password) VALUES (?, ?)", ('admin', 'admin'))
-            conn.commit()
-            cur.execute("SELECT * FROM admin WHERE username = ?", (username,))
-            admin = cur.fetchone()
+    # Insert default admin if no admin exists
+    cur.execute("SELECT COUNT(*) FROM admin")
+    total_admins = cur.fetchone()[0]
+
+    if total_admins == 0:
+        hashed_password = generate_password_hash("admin")
+        cur.execute("INSERT INTO admin (username, password) VALUES (?, ?)", ('admin', hashed_password))
+        conn.commit()
+
+        # Fetch again after inserting
+        cur.execute("SELECT * FROM admin WHERE username = ?", (username,))
+        admin = cur.fetchone()
 
     conn.close()
     return admin
@@ -403,7 +414,7 @@ def student_dashboard():
     return render_template('student_dashboard.html', student=student, title="Student Dashboard")
 
 
-
+from werkzeug.security import check_password_hash
 
 @app.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
@@ -411,10 +422,11 @@ def admin_login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        admin = get_admin(username)  # Now passing the username
+        admin = get_admin(username)
 
-        if admin and password == admin['password']:
+        if admin and check_password_hash(admin['password'], password):
             session['admin'] = username
+            session.permanent = True  # optional: for session timeout
             flash('Admin login successful!', 'success')
             return redirect(url_for('dashboard'))
         else:
@@ -423,6 +435,8 @@ def admin_login():
     return render_template('admin_login.html', title="Admin Login")
 
 
+
+from werkzeug.security import generate_password_hash
 
 @app.route('/admin-settings', methods=['GET', 'POST'])
 def admin_settings():
@@ -444,9 +458,12 @@ def admin_settings():
         opening_hours = request.form.get('opening_hours')
         about = request.form.get('about')
 
-        # ✅ Update admin credentials
+        # ✅ Securely hash the new password before saving
+        hashed_password = generate_password_hash(new_password)
+
+        # ✅ Update admin credentials with hashed password
         cur.execute("UPDATE admin SET username = ?, password = ? WHERE username = ?", 
-                    (new_username, new_password, session['admin']))
+                    (new_username, hashed_password, session['admin']))
         session['admin'] = new_username  # ✅ update session too
 
         # ✅ Update library settings
@@ -478,6 +495,7 @@ def admin_settings():
         total_seats=settings['total_seats'] if settings else 60,
         settings=settings
     )
+
 
 
 @app.context_processor
