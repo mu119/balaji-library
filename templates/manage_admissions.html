@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block title %}Manage Student Admissions{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="text-center mb-4">🎓 Pending Student Admissions</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if students %}
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for s in students %}
+    <div class="col">
+      <div class="card shadow-sm h-100">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{ url_for('static', filename='images/' ~ (s['photo'] if s['photo'] else 'default.jpg')) }}"
+                 class="img-fluid rounded-start" style="object-fit:contain; height: 100%;">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{ s['name'] }}</h5>
+              <p class="card-text">
+                <strong>Father:</strong> {{ s['father_name'] or '-' }}<br>
+                <strong>Gender:</strong> {{ s['gender'] }}<br>
+                <strong>Phone:</strong> {{ s['phone'] or '-' }}<br>
+                <strong>Exam:</strong> {{ s['exam'] or '-' }}<br>
+              </p>
+              <div class="d-flex gap-2">
+                <form method="POST" action="{{ url_for('approve_student', student_id=s['id']) }}">
+                  <button type="submit" class="btn btn-success btn-sm">✅ Approve</button>
+                </form>
+                <form method="POST" action="{{ url_for('reject_student', student_id=s['id']) }}" onsubmit="return confirm('Are you sure?')">
+                  <button type="submit" class="btn btn-danger btn-sm">❌ Reject</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center">No pending admissions.</div>
+  {% endif %}
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

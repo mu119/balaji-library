@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container my-5">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-4">📚 About Our Library</h2>
+
+      <p class="fs-5">
+        Welcome to <strong>Balaji Library</strong>, a community-driven learning center located in the heart of our village.
+        Established with the mission to promote education, creativity, and personal development, our library provides a peaceful and resource-rich environment for students and lifelong learners.
+      </p>
+
+      <p class="fs-5">
+        We offer a wide range of facilities, including comfortable reading spaces, access to study materials, digital resources, and guidance for competitive exams.
+        The library primarily supports students preparing for <strong>Class 10, Class 12, and graduation-level exams</strong>, along with various government and entrance tests.
+      </p>
+
+      <p class="fs-5">
+        Our goal is to bridge the educational gap in rural areas by offering affordable and high-quality resources to all learners.
+        Whether you're studying for exams or simply exploring new knowledge, the library is your place to grow.
+      </p>
+
+      <p class="fs-5">
+        Balaji Library is maintained by dedicated volunteers and supported by generous donors from our community.
+        We believe that education is the key to a better future, and we are proud to support every learner on their journey.
+      </p>
+
+      <div class="text-center mt-4">
+        <a href="{{ url_for('gallery') }}" class="btn btn-primary px-4">📸 View Gallery</a>
+        <a href="{{ url_for('donations') }}" class="btn btn-outline-success px-4">🎁 Support the Library</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+

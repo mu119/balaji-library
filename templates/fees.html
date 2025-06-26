@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="text-center mb-4">💰 Fees Management Panel</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Upload Panel -->
+  <div class="form-section border rounded p-4 bg-light shadow-sm">
+    <h5 class="mb-3">📤 Upload Payment QR & PhonePe Number</h5>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-6">
+          <label class="form-label">PhonePe Number</label>
+          <input type="text" name="phonepe_number" class="form-control" value="{{ payment_info.phonepe_number if payment_info else '' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Upload QR Code</label>
+          <input type="file" name="qr_image" class="form-control">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary mt-3">💾 Save</button>
+    </form>
+
+    {% if payment_info and payment_info.qr_image %}
+    <div class="qr-box mt-4 text-center">
+      <h6>📲 Current QR Code:</h6>
+      <img src="{{ url_for('static', filename='qr/' ~ payment_info.qr_image) }}" alt="QR Code" class="img-thumbnail" style="width: 180px;">
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Table -->
+  <div class="list-section mt-5">
+    <h5 class="mb-3">📋 Students' Fee Status</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Year</th>
+            <th>Status</th>
+            <th>Amount (₹)</th>
+            <th>Month</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set total = 0 %}
+          {% for s in students %}
+          <tr>
+            <form method="POST" action="{{ url_for('update_fee', student_id=s.id) }}">
+              <td>{{ s.id }}</td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.year }}</td>
+              <td>
+                <select name="fee_status" class="form-select form-select-sm">
+                  <option value="paid" {% if s.fees_status == 'paid' %}selected{% endif %}>Paid</option>
+                  <option value="unpaid" {% if s.fees_status == 'unpaid' %}selected{% endif %}>Unpaid</option>
+                </select>
+              </td>
+              <td>
+                <input type="text" name="fees_amount" class="form-control form-control-sm" value="{{ s.fees_amount or '' }}">
+                {% if s.fees_status == 'paid' %}
+                  {% set total = total + (s.fees_amount | int) %}
+                {% endif %}
+              </td>
+              <td>
+                <input type="text" name="month" class="form-control form-control-sm" value="{{ s.month or '' }}">
+              </td>
+              <td class="d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-success">✅ Update</button>
+              </form>
+              <form method="POST" action="{{ url_for('delete_fees_student', student_id=s.id) }}" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                <button type="submit" class="btn btn-sm btn-danger">🗑️ Delete</button>
+              </form>
+              </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-light fw-bold">
+          <tr>
+            <td colspan="4">Total Collected</td>
+            <td colspan="3">₹ {{ total }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

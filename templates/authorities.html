@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block title %}Library Authorities{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+  <h3 class="mb-3 text-center">👥 Library Authorities</h3>
+
+  {% if is_admin %}
+  <form method="POST" enctype="multipart/form-data" class="bg-light p-4 mb-4 border rounded shadow-sm">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input name="name" class="form-control" placeholder="Name" required>
+      </div>
+      <div class="col-md-3">
+        <input name="role" class="form-control" placeholder="Role (e.g. President)" required>
+      </div>
+      <div class="col-md-2">
+        <input name="phone" class="form-control" placeholder="Phone">
+      </div>
+      <div class="col-md-2">
+        <input name="email" class="form-control" placeholder="Email">
+      </div>
+      <div class="col-md-2">
+        <input type="file" name="photo" class="form-control">
+      </div>
+    </div>
+    <div class="text-end mt-2">
+      <button class="btn btn-primary btn-sm">➕ Add Authority</button>
+    </div>
+  </form>
+  {% endif %}
+
+  <div class="row row-cols-1 row-cols-md-3 g-3">
+    {% for a in authorities %}
+    <div class="col">
+      <div class="card h-100 text-center shadow-sm">
+        {% if a['photo'] %}
+        <div style="height: 220px; overflow: hidden;">
+          <img src="{{ url_for('static', filename='images/' ~ a['photo']) }}"
+               class="card-img-top"
+               style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ a['name'] }}</h5>
+          <p class="card-text">
+            <strong>{{ a['role'] }}</strong><br>
+            📞 {{ a['phone'] or '-' }}<br>
+            ✉️ {{ a['email'] or '-' }}
+          </p>
+
+          {% if is_admin %}
+          <div class="d-flex justify-content-center gap-2 mt-2">
+            <a href="{{ url_for('edit_authority', auth_id=a['id']) }}" class="btn btn-sm btn-outline-primary">✏️ Edit</a>
+            <form method="POST" action="{{ url_for('delete_authority', auth_id=a['id']) }}" onsubmit="return confirm('Delete this authority?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+
+

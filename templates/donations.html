@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="container my-5">
+  <h2 class="text-center mb-4">🎁 Library Donations</h2>
+
+  <!-- QR Code and PhonePe ID Section (Visible to all) -->
+  {% if phonepe_id or qr_code_path %}
+  <div class="alert alert-info text-center">
+    {% if qr_code_path %}
+      <img src="{{ url_for('static', filename='images/' ~ qr_code_path) }}" height="120" class="mb-2">
+    {% endif %}
+    {% if phonepe_id %}<p><strong>📱 PhonePe ID:</strong> {{ phonepe_id }}</p>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Add Donation Form (Visible to all) -->
+  <div class="card shadow-sm mb-5">
+    <div class="card-body">
+      <h5 class="card-title">➕ Add New Donation</h5>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Name</label>
+            <input type="text" name="name" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Date</label>
+            <input type="date" name="date" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Item Donated</label>
+            <input type="text" name="item" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Photo (optional)</label>
+            <input type="file" name="photo" class="form-control">
+          </div>
+          <div class="col-12 mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-success">Add Donation</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Donation List -->
+  <h5 class="mb-3">📋 All Donations</h5>
+ <div class="donation-card-list d-flex flex-column gap-3">
+    {% for d in donations %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        {% if d['photo'] %}
+        <img src="{{ url_for('static', filename='images/' ~ d['photo']) }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+        {% endif %}
+        <div class="card-body">
+          <h6 class="card-title">{{ d['item'] }}</h6>
+          <p class="mb-1"><strong>By:</strong> {{ d['name'] }}</p>
+          <p class="mb-1"><strong>Date:</strong> {{ d['date'] }}</p>
+          <p class="small text-muted">{{ d['description'] or '' }}</p>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('print_donation', donation_id=d['id']) }}" class="btn btn-outline-secondary btn-sm">🖨 Print</a>
+            {% if is_admin %}
+              <div>
+                <a href="{{ url_for('edit_donation', donation_id=d['id']) }}" class="btn btn-warning btn-sm">✏️ Edit</a>
+                <form action="{{ url_for('delete_donation', donation_id=d['id']) }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure?')">
+                  <button class="btn btn-danger btn-sm">🗑 Delete</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Admin Only: QR Code & PhonePe ID Edit Panel -->
+  {% if is_admin %}
+  <div class="card mt-5">
+    <div class="card-header bg-dark text-white">
+      ⚙️ QR Code & PhonePe ID Settings
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('update_payment_settings') }}" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>PhonePe ID</label>
+            <input type="text" name="phonepe_id" class="form-control" value="{{ phonepe_id }}">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>QR Code Image</label>
+            <input type="file" name="qr_code" class="form-control">
+          </div>
+        </div>
+        <button class="btn btn-primary">💾 Update Settings</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+
+
+

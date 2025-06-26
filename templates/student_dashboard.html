@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">👨‍🎓 Student Dashboard</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="card mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+      <div class="text-center mb-3">
+        {% if student.photo %}
+          <img src="{{ url_for('static', filename='images/' + student.photo) }}" 
+               class="rounded-circle shadow" width="120" height="120" alt="Student Photo">
+        {% else %}
+          <span class="text-muted">No Photo</span>
+        {% endif %}
+      </div>
+
+      <h4 class="text-center">{{ student.name }}</h4>
+      <p class="text-center text-muted">{{ student.year }} Year</p>
+
+      <hr>
+
+      <!-- 🪑 Table Number & Timing -->
+      <h5 class="text-center">🪑 Table Number & ⏱️ Timing</h5>
+      <form method="POST">
+        <div class="row mb-3">
+          <div class="col-6">
+            <label>Table Number</label>
+            <input type="text" name="table_number" class="form-control" value="{{ student.table_number or '' }}">
+          </div>
+          <div class="col-6">
+            <label>Library Timing (e.g., 9 AM - 1 PM)</label>
+            <input type="text" name="library_timing" class="form-control" value="{{ student.library_timing or '' }}">
+          </div>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-success btn-sm">💾 Update</button>
+        </div>
+      </form>
+
+      <hr>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Username:</strong></div>
+        <div class="col-6">{{ student.username }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Gender:</strong></div>
+        <div class="col-6">{{ student.gender }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Phone:</strong></div>
+        <div class="col-6">{{ student.phone }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Email:</strong></div>
+        <div class="col-6">{{ student.email }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Father's Name:</strong></div>
+        <div class="col-6">{{ student.father_name }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Address:</strong></div>
+        <div class="col-6">{{ student.address }}</div>
+      </div>
+
+      <div class="row mb-2">
+        <div class="col-6"><strong>Exam Prep:</strong></div>
+        <div class="col-6">{{ student.exam }}</div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-6"><strong>Fees Status:</strong></div>
+        <div class="col-6">
+          {% if student.fees_status == 'paid' %}
+            <span class="badge bg-success">Paid</span>
+          {% else %}
+            <span class="badge bg-danger">Unpaid</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- 🔐 Reset Password -->
+      <h5 class="text-center mt-4">🔐 Reset Password</h5>
+      <form method="POST" action="{{ url_for('reset_password') }}">
+        <div class="row mb-3">
+          <div class="col-12">
+            <label>New Password</label>
+            <input type="password" name="new_password" class="form-control" required minlength="4" placeholder="Enter new password">
+          </div>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn btn-warning btn-sm">🔁 Change Password</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-4">
+        <!-- Print ID Card Button -->
+        <a href="{{ url_for('student_id', student_id=student.id) }}" class="btn btn-outline-primary">🪪 View ID Card</a>
+        <button onclick="window.print()" class="btn btn-outline-secondary">🖨️ Print This Page</button>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger mt-2">🚪 Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

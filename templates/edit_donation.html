@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">✏️ Edit Donation</h2>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Name</label>
+            <input type="text" name="name" value="{{ donation[1] }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Date</label>
+            <input type="date" name="date" value="{{ donation[2] }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Item Donated</label>
+            <input type="text" name="item" value="{{ donation[3] }}" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Update Photo (optional)</label>
+            <input type="file" name="photo" class="form-control">
+          </div>
+          <div class="col-12 mb-3">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3">{{ donation[4] }}</textarea>
+          </div>
+        </div>
+        <button class="btn btn-success">💾 Save Changes</button>
+        <a href="{{ url_for('donations') }}" class="btn btn-secondary">⬅️ Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

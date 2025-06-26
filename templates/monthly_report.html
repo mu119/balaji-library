@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4 text-center">📆 Monthly Expense Report</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover table-striped">
+      <thead class="table-dark">
+        <tr>
+          <th>Month</th>
+          <th>Total Amount (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in report %}
+        <tr>
+          <td>{{ row[0] }}</td>
+          <td>₹ {{ row[1] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('expenses') }}" class="btn btn-secondary">⬅️ Back to Expense Panel</a>
+  </div>
+</div>
+{% endblock %}
+

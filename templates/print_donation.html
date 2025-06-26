@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <div class="text-center mb-4">
+    <h2>🖨️ Donation Receipt</h2>
+    <hr>
+  </div>
+  <div class="card shadow-sm p-4">
+    {% if donation['photo'] %}
+    <div class="text-center mb-3">
+      <img src="{{ url_for('static', filename='images/' ~ donation['photo']) }}" style="max-height:200px;" class="img-fluid rounded">
+    </div>
+    {% endif %}
+
+    <h5><strong>Item Donated:</strong> {{ donation['item'] }}</h5>
+    <p><strong>Donated By:</strong> {{ donation['name'] }}</p>
+    <p><strong>Date:</strong> {{ donation['date'] }}</p>
+    <p><strong>Description:</strong> {{ donation['description'] or '—' }}</p>
+
+    <div class="text-center mt-4">
+      <button onclick="window.print()" class="btn btn-outline-primary">🖨 Print</button>
+      <a href="{{ url_for('donations') }}" class="btn btn-secondary">⬅ Back</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="text-center mb-4">📄 Library Expense Panel</h2>
+
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Expense Form -->
+  <form method="POST" action="{{ url_for('add_expense') }}" class="border p-4 bg-light rounded shadow-sm mt-4">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Amount Spent (₹)</label>
+        <input type="number" name="amount" class="form-control" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-select" required>
+          <option>Books</option>
+          <option>Electricity</option>
+          <option>Furniture</option>
+          <option>Stationary</option>
+          <option>Rent</option>
+          <option>Others</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Source</label>
+        <input type="text" name="source" class="form-control" placeholder="e.g. Donation Box / Person Name" required>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Description (optional)</label>
+        <input type="text" name="description" class="form-control">
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">➕ Add Expense</button>
+    </div>
+  </form>
+
+  <!-- Expense Table -->
+  <div class="mt-5">
+    <h4 class="mb-3">💰 All Expenses</h4>
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+          <tr>
+            <th>Date</th>
+            <th>Amount (₹)</th>
+            <th>Category</th>
+            <th>From (Source)</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for exp in expenses %}
+          <tr>
+            <td>{{ exp.date }}</td>
+            <td>{{ exp.amount }}</td>
+            <td>{{ exp.category }}</td>
+            <td>{{ exp.source }}</td>
+            <td>{{ exp.description or '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

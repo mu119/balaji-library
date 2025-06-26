@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}Fees Payment{% endblock %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 600px;">
+  <h3 class="mb-4 text-center">💳 Fees Payment Panel</h3>
+
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Amount (₹)</label>
+      <input type="number" name="amount" class="form-control" required>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label">Transaction ID</label>
+      <input type="text" name="transaction_id" class="form-control" required>
+    </div>
+
+    {% if settings and settings.qr_image %}
+    <div class="text-center mb-4">
+      <img src="{{ url_for('static', filename='qr/' ~ settings.qr_image) }}" class="img-thumbnail shadow-sm" style="max-width: 240px;" alt="QR Code">
+      <p class="mt-2 text-muted">📲 Pay to: <strong>{{ settings.phonepe_number }}</strong></p>
+    </div>
+    {% else %}
+    <div class="alert alert-warning text-center">
+      ⚠️ QR code ya PhonePe ID abhi set nahi ki gayi hai.
+    </div>
+    {% endif %}
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-success btn-lg">💾 Submit Payment</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

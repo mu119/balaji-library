@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-center">📬 All Feedback Messages</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if feedbacks and feedbacks|length > 0 %}
+    <div class="table-responsive shadow-sm">
+      <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Message</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fb in feedbacks %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ fb['name'] }}</td>
+            <td>{{ fb['email'] or '—' }}</td>
+            <td>{{ fb['message'] }}</td>
+            <td><small class="text-muted">{{ fb['date'] }}</small></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="alert alert-info">No feedback received yet.</div>
+  {% endif %}
+
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-4">⬅️ Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-5" style="max-width: 1200px;">
+  <h2 class="text-center mb-5 fw-bold text-dark display-5" style="letter-spacing: 1px;">📊 Admin Dashboard</h2>
+
+  <!-- ✅ Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm rounded-pill px-4" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Dashboard Stats -->
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 bg-white bg-opacity-75 glassmorph">
+        <div class="card-body text-center">
+          <h6 class="text-muted">👥 Total Students</h6>
+          <h2 class="text-primary">{{ total_students }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 bg-white bg-opacity-75 glassmorph">
+        <div class="card-body text-center">
+          <h6 class="text-muted">🟢 Active Students</h6>
+          <h2 class="text-success">{{ active_students }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 bg-white bg-opacity-75 glassmorph">
+        <div class="card-body text-center">
+          <h6 class="text-muted">🪑 Total Seats</h6>
+          <h2 class="text-warning">{{ total_seats }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm rounded-4 bg-white bg-opacity-75 glassmorph">
+        <div class="card-body text-center">
+          <h6 class="text-muted">🔴 Vacant Seats</h6>
+          <h2 class="text-danger">{{ empty_seats }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Table -->
+  <div class="card mt-5 border-0 shadow rounded-4">
+    <div class="card-header bg-dark text-white rounded-top-4 fw-semibold fs-5">
+      🎓 Current Admitted Students
+    </div>
+    <div class="card-body bg-light rounded-bottom-4">
+      {% if students %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle rounded-3 overflow-hidden shadow-sm">
+            <thead class="table-light text-center">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Status</th>
+                <th>Photo</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student in students %}
+              <tr class="text-center">
+                <td>{{ loop.index }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.year }}</td>
+                <td>
+                  {% if student.status == 'active' %}
+                    <span class="badge rounded-pill bg-success px-3 py-2">Active</span>
+                  {% else %}
+                    <span class="badge rounded-pill bg-secondary px-3 py-2">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if student.photo %}
+                    <img src="{{ url_for('static', filename='images/' ~ student.photo) }}" width="42" height="42" class="rounded-circle shadow-sm border">
+                  {% else %}
+                    <span class="text-muted">No photo</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="{{ url_for('edit_student', student_id=student.id) }}" class="btn btn-sm btn-outline-warning rounded-pill" title="Edit">✏️</a>
+                    <form method="POST" action="{{ url_for('delete_student', student_id=student.id) }}" onsubmit="return confirm('Are you sure you want to delete this student?')">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">🗑</button>
+                    </form>
+                    <form method="POST" action="{{ url_for('toggle_status', student_id=student.id) }}">
+                      {% if student.status == 'active' %}
+                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill" title="Set Inactive">🔕</button>
+                      {% else %}
+                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill" title="Set Active">🔔</button>
+                      {% endif %}
+                    </form>
+                    <a href="{{ url_for('student_id', student_id=student.id) }}" class="btn btn-sm btn-outline-info rounded-pill" title="Print ID Card">🖨️</a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted">No student admissions yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- 📢 Notices Section -->
+  <div class="card mt-5 border-0 shadow rounded-4">
+    <div class="card-header bg-info text-white rounded-top-4 fw-semibold fs-5 d-flex justify-content-between align-items-center">
+      <span>📢 Latest Notices</span>
+      <a href="{{ url_for('add_notice') }}" class="btn btn-light btn-sm rounded-pill">➕ Add Notice</a>
+    </div>
+    <div class="card-body bg-light rounded-bottom-4">
+      {% if notices %}
+        <ul class="list-group">
+          {% for notice in notices %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ notice.title }}</strong><br>
+                <small class="text-muted">{{ notice.created_at }}</small>
+              </div>
+              <form method="POST" action="{{ url_for('delete_notice', notice_id=notice.id) }}" onsubmit="return confirm('Delete this notice?')">
+                <button class="btn btn-sm btn-danger rounded-pill">🗑</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No notices available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Buttons Section -->
+  <div class="text-center mt-5 d-flex flex-wrap justify-content-center gap-3">
+    <a href="{{ url_for('manage_admissions') }}" class="btn btn-outline-primary rounded-pill px-4">🎓 Manage Admissions</a>
+    <a href="/expenses" class="btn btn-outline-primary rounded-pill px-4">💸 Expense Panel</a>
+    <a href="/fees" class="btn btn-outline-success rounded-pill px-4">💰 Fees Panel</a>
+    <a href="{{ url_for('donations') }}" class="btn btn-outline-warning rounded-pill px-4">🎁 Manage Donations</a>
+    <a href="/monthly-report" class="btn btn-outline-dark rounded-pill px-4">📆 Monthly Report</a>
+    <a href="/export-expenses" class="btn btn-outline-success rounded-pill px-4">⬇️ Export CSV</a>
+    <a href="{{ url_for('authorities') }}" class="btn btn-outline-secondary rounded-pill px-4">🧑‍💼 Manage Authorities</a>
+    <a href="{{ url_for('members') }}" class="btn btn-outline-primary rounded-pill px-4">📋 View Members</a>
+    <a href="/admin-settings" class="btn btn-outline-info rounded-pill w-100">⚙️ Admin Settings</a>
+    <a href="{{ url_for('view_feedback') }}" class="btn btn-outline-info rounded-pill btn-sm mt-2">📬 View Feedback</a>
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="/logout" class="btn btn-secondary rounded-pill px-5">🚪 Logout</a>
+  </div>
+</div>
+
+<style>
+  .glassmorph {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+</style>
+{% endblock %}

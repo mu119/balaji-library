@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+  <style>
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #id-card, #id-card * {
+        visibility: visible;
+      }
+      #id-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="text-center my-4">
+  <h3>🪪 {{ student.name }} का Library ID</h3>
+
+  <div class="border p-4 rounded shadow-sm bg-white" id="id-card" style="max-width:400px; margin:auto;">
+    {% if student.photo %}
+      <img src="{{ url_for('static', filename='images/' ~ student.photo) }}" class="img-thumbnail mb-3" style="width:150px; height:150px; object-fit:cover;">
+    {% else %}
+      <img src="{{ url_for('static', filename='images/default.jpg') }}" class="img-thumbnail mb-3" style="width:150px; height:150px; object-fit:cover;">
+    {% endif %}
+
+    <p><strong>नाम:</strong> {{ student.name }}</p>
+    <p><strong>सदस्य ID:</strong> {{ student.id }}</p>
+    <p><strong>शैक्षिक वर्ष:</strong> {{ student.year }}</p>
+    <p><strong>स्थिति:</strong> {{ student.status }}</p>
+    <p><strong>लाइब्रेरी:</strong> Balaji Library</p>
+  </div>
+
+  <button class="btn btn-primary mt-3" onclick="window.print()">🖨️ Print ID</button>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4 text-center">👥 Current Student Members / वर्तमान सदस्य</h2>
+
+  {% if students %}
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for s in students %}
+    <div class="col">
+      <div class="card h-100 shadow-sm border-0">
+
+        {% if s['photo'] %}
+        <div style="height: 220px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+          <img src="{{ url_for('static', filename='images/' ~ (s['photo'] if s['photo'] else 'default.jpg')) }}"
+               style="max-height: 100%; max-width: 100%; object-fit: contain;">
+        </div>
+        {% endif %}
+
+        <div class="card-body">
+          <h5 class="card-title">{{ s['name'] }}</h5>
+          <p class="card-text small">
+            👨‍👧 <strong>Father's Name:</strong> {{ s['father_name'] or 'N/A' }}<br>
+            🧑‍🎓 <strong>Gender:</strong> {{ s['gender']|capitalize }}<br>
+            🧾 <strong>Exam:</strong> {{ s['exam'] or 'N/A' }}<br>
+            🎓 <strong>Graduation:</strong> {{ s['college_grad'] or 'N/A' }} ({{ s['percent_grad'] or '0' }}%)<br>
+            🏠 <strong>Address:</strong> {{ s['address'] or 'N/A' }}<br>
+
+            🔖 <strong>Status:</strong> 
+            <span class="badge bg-{{ 'success' if s['status'] == 'active' else 'secondary' }}">
+              {{ s['status'].capitalize() }}
+            </span>
+          </p>
+
+          <!-- 🪑 Table Number and ⏱️ Timing -->
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <strong>🪑 Table:</strong> {{ s['table_number'] or 'N/A' }}
+            </div>
+            <div class="col-md-6">
+              <strong>⏱️ Timing:</strong> {{ s['library_timing'] or 'Not Set' }}
+            </div>
+          </div>
+
+          {% if is_admin %}
+          <hr>
+          <p class="card-text small">
+            📅 <strong>Admission Date:</strong> {{ s['admission']|datetimeformat }}<br>
+            📞 <strong>Phone:</strong> {{ s['phone'] or '-' }}<br>
+            📧 <strong>Email:</strong> {{ s['email'] or '-' }}<br>
+            💰 <strong>Fees:</strong> ₹{{ s['fees_amount'] or 'N/A' }}<br>
+            🔑 <strong>Txn ID:</strong> {{ s['transaction_id'] or 'N/A' }}<br>
+
+            <!-- ✅ Newly Added Lines -->
+            🏫 <strong>10th School:</strong> {{ s['school_10'] or 'N/A' }} ({{ s['percent_10'] or '0' }}%)<br>
+            🏫 <strong>12th School:</strong> {{ s['school_12'] or 'N/A' }} ({{ s['percent_12'] or '0' }}%)<br>
+          </p>
+
+          <div class="d-grid gap-2 mt-2">
+            <a href="{{ url_for('edit_student', student_id=s['id']) }}" class="btn btn-sm btn-outline-warning">✏️ Edit</a>
+            <form action="{{ url_for('delete_student', student_id=s['id']) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this student?')">
+              <button type="submit" class="btn btn-sm btn-outline-danger">🗑️ Delete</button>
+            </form>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-4">
+    No student records found.
+  </div>
+  {% endif %}
+
+  {% if is_admin %}
+  <div class="text-center mt-4">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

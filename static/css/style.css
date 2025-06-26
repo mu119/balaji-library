@@ -1,0 +1,80 @@
+/* ===== General Body Styling ===== */
+body {
+    background-color: #f8f9fa; /* Light gray */
+    font-family: 'Segoe UI', sans-serif;
+    padding: 20px;
+    color: #212529; /* Bootstrap default text color */
+}
+
+/* ===== Header Styling ===== */
+h1, h2, h3 {
+    color: #343a40; /* Dark Gray */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* ===== Navigation Links (if any custom navbar used) ===== */
+nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* ===== Login Box Styling (extra polish if not using Bootstrap card) ===== */
+.login-box {
+    max-width: 400px;
+    margin: 60px auto;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+}
+
+/* ===== Footer Styling (optional) ===== */
+footer {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+/* ===== WhatsApp Scroll Popup Styling ===== */
+#whatsapp-popup {
+    transition: opacity 0.5s ease;
+    z-index: 1050;
+}
+
+#whatsapp-popup .popup-box {
+    background-color: #25D366;
+    color: white;
+    border-radius: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    min-width: 230px;
+}
+
+#whatsapp-popup .popup-box i {
+    font-size: 1.4rem;
+    margin-right: 10px;
+    animation: bounce 1.5s infinite;
+}
+
+#whatsapp-popup .popup-text {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+/* Bounce animation for WhatsApp icon */
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}

@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4 text-center">📢 Latest Notices</h3>
+
+  {% if notices %}
+    <ul class="list-group shadow-sm">
+      {% for notice in notices %}
+      <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="me-3">
+          <h6 class="fw-bold mb-1">{{ notice['title'] }}</h6>
+          <p class="mb-1">{{ notice['content'] }}</p>
+          <small class="text-muted">{{ notice['created_at'] }}</small>
+        </div>
+        {% if session.get('admin') %}
+        <form method="POST" action="{{ url_for('delete_notice', notice_id=notice['id']) }}" onsubmit="return confirm('Delete this notice?')">
+          <button class="btn btn-sm btn-danger">🗑</button>
+        </form>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted text-center">No notices posted yet.</p>
+  {% endif %}
+
+  {% if session.get('admin') %}
+  <div class="card mt-4 shadow-sm">
+    <div class="card-header fw-semibold">📝 Post New Notice</div>
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('add_notice') }}">
+        <div class="mb-3">
+          <label class="form-label">Notice Title</label>
+          <input type="text" name="title" class="form-control" placeholder="Notice Title" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notice Content</label>
+          <textarea name="content" class="form-control" rows="3" placeholder="Write your notice here..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">➕ Add Notice</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

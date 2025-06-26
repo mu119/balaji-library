@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">✏️ Edit Student Details</h4>
+    </div>
+    <div class="card-body">
+      <form method="POST">
+
+        <!-- Student Name -->
+        <div class="mb-3">
+          <label for="name" class="form-label">👤 Full Name</label>
+          <input type="text" name="name" class="form-control" id="name" value="{{ student['name'] }}" required>
+        </div>
+
+        <!-- Admission Status -->
+        <div class="mb-3">
+          <label for="admission" class="form-label">📝 Admission Status</label>
+          <select class="form-select" name="admission" id="admission">
+            <option value="Yes" {% if student['admission'] == 'Yes' %}selected{% endif %}>Allow Admission</option>
+            <option value="No" {% if student['admission'] == 'No' %}selected{% endif %}>Do Not Allow</option>
+          </select>
+        </div>
+
+        <!-- Year -->
+        <div class="mb-3">
+          <label for="year" class="form-label">📅 Admission Year</label>
+          <input type="text" name="year" class="form-control" id="year" value="{{ student['year'] }}" required>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+          <label for="status" class="form-label">🔖 Status</label>
+          <select class="form-select" name="status" id="status">
+            <option value="active" {% if student['status'] == 'active' %}selected{% endif %}>Active</option>
+            <option value="inactive" {% if student['status'] == 'inactive' %}selected{% endif %}>Inactive</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+          <a href="{{ url_for('members') }}" class="btn btn-secondary">⬅️ Back to Members</a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

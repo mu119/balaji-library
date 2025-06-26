@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">📱 Payment Settings</h2>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label>📞 PhonePe ID</label>
+          <input type="text" name="phonepe_id" value="{{ settings[1] }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label>📷 Upload New QR Code (optional)</label>
+          <input type="file" name="qr_code" class="form-control">
+        </div>
+
+        {% if settings[2] %}
+        <div class="mb-3">
+          <label>Current QR Code:</label><br>
+          <img src="{{ url_for('static', filename='images/' ~ settings[2]) }}" style="max-height:180px;" class="rounded shadow">
+        </div>
+        {% endif %}
+
+        <button class="btn btn-success">💾 Save Settings</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">⬅ Back to Dashboard</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
