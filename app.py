@@ -629,13 +629,21 @@ def approve_student(student_id):
 
 @app.route('/reject_student/<int:student_id>', methods=['POST'])
 def reject_student(student_id):
+    if 'admin' not in session:
+        flash("Admin access required!", "warning")
+        return redirect(url_for('admin_login'))
+
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("DELETE FROM students WHERE id = ?", (student_id,))
+
+    # Soft delete: mark student as deleted
+    cur.execute("UPDATE students SET is_deleted = 1 WHERE id = ?", (student_id,))
     conn.commit()
     conn.close()
-    flash("Student rejected and deleted.", "danger")
+
+    flash("🗑️ Student rejected and hidden from records.", "danger")
     return redirect(url_for('manage_admissions'))
+
 
 
 @app.route('/fees-payment', methods=['GET', 'POST'])
@@ -737,13 +745,15 @@ def delete_student(student_id):
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("DELETE FROM students WHERE id = ?", (student_id,))
+
+    # Soft delete: mark as is_deleted = 1
+    cur.execute("UPDATE students SET is_deleted = 1 WHERE id = ?", (student_id,))
     conn.commit()
     conn.close()
 
-    flash("🗑️ Student deleted successfully.", "success")
+    flash("🗑️ Student marked as deleted.", "info")
 
-    # Check where request came from
+    # Redirect to origin
     redirect_from = request.form.get('from')
     if redirect_from == 'dashboard':
         return redirect(url_for('dashboard'))
@@ -818,13 +828,13 @@ def members():
     is_admin = 'admin' in session
 
     if is_admin:
-        cur.execute("SELECT * FROM students ORDER BY year DESC")
+        cur.execute("SELECT * FROM students WHERE is_deleted = 0 ORDER BY year DESC")
     else:
         cur.execute("""
             SELECT id, name, gender, photo, exam, address, college_grad, percent_grad,
                    father_name, table_number, library_timing, status 
             FROM students 
-            WHERE status = 'active' 
+            WHERE status = 'active' AND is_deleted = 0 
             ORDER BY year DESC
         """)
 
@@ -832,6 +842,8 @@ def members():
     conn.close()
 
     return render_template('members.html', title="Current Student Members", students=students, is_admin=is_admin)
+
+
 
 @app.template_filter('datetimeformat')
 def datetimeformat(value, format='%d-%m-%Y'):
@@ -882,11 +894,14 @@ def fees():
 
     cur.execute("SELECT * FROM fees_settings ORDER BY id DESC LIMIT 1")
     payment_info = cur.fetchone()
-    cur.execute("SELECT * FROM students")
+
+    # ✅ Only show students who are not deleted
+    cur.execute("SELECT * FROM students WHERE is_deleted = 0")
     students = cur.fetchall()
     conn.close()
 
     return render_template('fees.html', title="Fees Panel", payment_info=payment_info, students=students)
+
 
 
 
@@ -913,12 +928,15 @@ def delete_fees_student(student_id):
     try:
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
-        cur.execute("DELETE FROM students WHERE id = ?", (student_id,))
+
+        # 🟢 Perform soft delete
+        cur.execute("UPDATE students SET is_deleted = 1 WHERE id = ?", (student_id,))
         conn.commit()
         conn.close()
-        flash("🗑️ Student deleted from fees panel!", "success")
+
+        flash("🗑️ Student hidden from fees panel!", "success")
     except Exception as e:
-        flash(f"❌ Error deleting student: {e}", "danger")
+        flash(f"❌ Error hiding student: {e}", "danger")
 
     return redirect(url_for('fees'))
 
@@ -942,12 +960,17 @@ def expenses():
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
-        cur.execute("SELECT * FROM expenses ORDER BY date DESC")
+
+        # ✅ Show only expenses that are not deleted
+        cur.execute("SELECT * FROM expenses WHERE is_deleted = 0 ORDER BY date DESC")
         expenses = cur.fetchall()
+
         conn.close()
         return render_template('bill_panel.html', title="Library Expenses", expenses=expenses)
+
     flash("Please login as admin!", "danger")
     return redirect(url_for('admin_login'))
+
 
 @app.route('/add-expense', methods=['POST'])
 def add_expense():
@@ -970,16 +993,21 @@ def add_expense():
 
 @app.route('/delete-expense/<int:expense_id>')
 def delete_expense(expense_id):
-    if 'admin' in session:
-        conn = sqlite3.connect(DB_PATH)
-        cur = conn.cursor()
-        cur.execute("DELETE FROM expenses WHERE id = ?", (expense_id,))
-        conn.commit()
-        conn.close()
-        flash("🗑️ Expense deleted!", "info")
-        return redirect(url_for('expenses'))
-    flash("Unauthorized access!", "danger")
-    return redirect(url_for('admin_login'))
+    if 'admin' not in session:
+        flash("Unauthorized access!", "danger")
+        return redirect(url_for('admin_login'))
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    # 🟢 Perform soft delete
+    cur.execute("UPDATE expenses SET is_deleted = 1 WHERE id = ?", (expense_id,))
+    conn.commit()
+    conn.close()
+
+    flash("🗑️ Expense hidden successfully!", "info")
+    return redirect(url_for('expenses'))
+
 
 @app.route('/export-expenses')
 def export_expenses():
@@ -1048,7 +1076,8 @@ def donations():
             flash("✅ Donation submitted successfully!", "success")
 
     # Fetch data for rendering
-    donations = cur.execute("SELECT * FROM donations ORDER BY date DESC").fetchall()
+    # ✅ Only fetch non-deleted donations
+    donations = cur.execute("SELECT * FROM donations WHERE is_deleted = 0 ORDER BY date DESC").fetchall()
     cur.execute("SELECT phonepe_id, qr_code_path FROM payment_settings LIMIT 1")
     row = cur.fetchone()
     phonepe_id = row['phonepe_id'] if row else None
@@ -1110,12 +1139,15 @@ def delete_donation(donation_id):
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("DELETE FROM donations WHERE id = ?", (donation_id,))
+
+    # ✅ Soft delete instead of hard delete
+    cur.execute("UPDATE donations SET is_deleted = 1 WHERE id = ?", (donation_id,))
     conn.commit()
     conn.close()
 
-    flash("Donation deleted successfully.", "success")
+    flash("🗑️ Donation marked as deleted (soft delete).", "success")
     return redirect(url_for('donations'))
+
 
 @app.route('/donation/print/<int:donation_id>')
 def print_donation(donation_id):
@@ -1203,11 +1235,13 @@ def authorities():
         flash("✅ Authority added successfully!", "success")
         return redirect(url_for('authorities'))
 
-    cur.execute("SELECT * FROM authorities")
+    # ✅ Fetch only non-deleted authorities
+    cur.execute("SELECT * FROM authorities WHERE is_deleted = 0")
     authority_list = cur.fetchall()
     conn.close()
 
     return render_template('authorities.html', title="Library Authorities", authorities=authority_list, is_admin=True)
+
 
 
 # Public display page
@@ -1216,10 +1250,14 @@ def library_authority():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT * FROM authorities")
+    
+    # ✅ Only fetch non-deleted authorities
+    cur.execute("SELECT * FROM authorities WHERE is_deleted = 0")
+    
     members = cur.fetchall()
     conn.close()
     return render_template('library_authority.html', title="Library Authority Info", members=members)
+
 
 @app.route('/authority/edit/<int:auth_id>', methods=['GET', 'POST'])
 def edit_authority(auth_id):
@@ -1268,11 +1306,12 @@ def delete_authority(auth_id):
 
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("DELETE FROM authorities WHERE id=?", (auth_id,))
+    # ✅ Mark authority as deleted instead of removing
+    cur.execute("UPDATE authorities SET is_deleted = 1 WHERE id = ?", (auth_id,))
     conn.commit()
     conn.close()
 
-    flash("🗑️ Authority deleted successfully!", "info")
+    flash("🗑️ Authority marked as deleted (soft delete).", "info")
     return redirect(url_for('authorities'))
 
 

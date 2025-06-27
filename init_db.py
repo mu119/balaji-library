@@ -55,7 +55,8 @@ student_columns = {
     "fees_amount": "TEXT",
     "transaction_id": "TEXT",
     "month": "TEXT",
-    "approved": "INTEGER DEFAULT 0"
+    "approved": "INTEGER DEFAULT 0",
+    "is_deleted": "INTEGER DEFAULT 0"  # ✅ New column added safely
 }
 for col, col_type in student_columns.items():
     add_column_safely("students", col, col_type)
@@ -81,7 +82,9 @@ CREATE TABLE IF NOT EXISTS expenses (
     date TEXT
 );
 """)
+add_column_safely("expenses", "is_deleted", "INTEGER DEFAULT 0")  # ✅ Added safely
 print("✅ 'expenses' table created.")
+
 
 # === Step 5: Create settings table ===
 cur.execute("""
@@ -112,7 +115,9 @@ CREATE TABLE IF NOT EXISTS donations (
     photo TEXT
 );
 """)
+add_column_safely("donations", "is_deleted", "INTEGER DEFAULT 0")  # ✅ Safe column addition
 print("✅ 'donations' table created.")
+
 
 # === Step 7: Create authorities table ===
 cur.execute("""
@@ -125,7 +130,9 @@ CREATE TABLE IF NOT EXISTS authorities (
     photo TEXT
 );
 """)
+add_column_safely("authorities", "is_deleted", "INTEGER DEFAULT 0")  # ✅ Added safely
 print("✅ 'authorities' table created.")
+
 
 # === Step 8: Create feedback table ===
 cur.execute("""
@@ -191,7 +198,6 @@ else:
     );
     """)
     print("✅ 'notices' table verified or created (no message column).")
-
 
 # === Finish ===
 conn.commit()
